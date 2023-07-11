@@ -6,45 +6,19 @@
 # 2. Split the worker service to adhoc workers and scheduled queries workers.
 version: '2'
 x-redash-service: &redash-service
-<<<<<<< HEAD
   image: rodrigocadaval/redash:v10
   depends_on:
     - redis
   env_file: .env
   restart: always
-=======
-  build:
-    context: .
-    args:
-      skip_frontend_build: "true"  # set to empty string to build
-  volumes:
-    - .:/app
-  env_file:
-    - .env
-x-redash-environment: &redash-environment
-  REDASH_LOG_LEVEL: "INFO"
-  REDASH_REDIS_URL: "redis://redis:6379/0"
-  REDASH_DATABASE_URL: "postgresql://postgres@postgres/postgres"
-  REDASH_RATELIMIT_ENABLED: "false"
-  REDASH_MAIL_DEFAULT_SENDER: "redash@example.com"
-  REDASH_MAIL_SERVER: "email"
-  REDASH_ENFORCE_CSRF: "true"
-  REDASH_GUNICORN_TIMEOUT: 60
-  # Set secret keys in the .env file
->>>>>>> upstream/master
 services:
   server:
     <<: *redash-service
     command: server
     ports:
-<<<<<<< HEAD
       - "5000:5000"
-=======
-      - "5001:5000"
-      - "5678:5678"
->>>>>>> upstream/master
     environment:
-      REDASH_WEB_WORKERS: 8
+      REDASH_WEB_WORKERS: 64
   scheduler:
     <<: *redash-service
     command: scheduler
@@ -53,51 +27,36 @@ services:
     command: worker
     environment:
       QUEUES: "scheduled_queries"
-      WORKERS_COUNT: 8
+      WORKERS_COUNT: 32
   adhoc_worker:
     <<: *redash-service
     command: worker
     environment:
       QUEUES: "queries"
+      WORKERS_COUNT: 186
+  worker-emails:
+    <<: *redash-service
+    command: worker
+    environment:
+      QUEUES: "emails default"
       WORKERS_COUNT: 8
   worker:
     <<: *redash-service
     command: worker
     environment:
-<<<<<<< HEAD
-      QUEUES: "periodic emails default"
-      WORKERS_COUNT: 8
+      QUEUES: "periodic"
+      WORKERS_COUNT: 4
   worker_schemas:
     <<: *redash-service
     command: worker
     environment:
       QUEUES: "schemas"
-      WORKERS_COUNT: 8
+      WORKERS_COUNT: 32
   redis:
     image: redis:5.0-alpine
     restart: always
   nginx:
     image: redash/nginx:latest
-=======
-      <<: *redash-environment
-      PYTHONUNBUFFERED: 0
-  redis:
-    image: redis:7-alpine
-    restart: unless-stopped
-  postgres:
-    image: pgautoupgrade/pgautoupgrade:dev
-    ports:
-      - "15432:5432"
-    # The following turns the DB into less durable, but gains significant performance improvements for the tests run (x3
-    # improvement on my personal machine). We should consider moving this into a dedicated Docker Compose configuration for
-    # tests.
-    command: "postgres -c fsync=off -c full_page_writes=off -c synchronous_commit=OFF"
-    restart: unless-stopped
-    environment:
-      POSTGRES_HOST_AUTH_METHOD: "trust"
-  email:
-    image: maildev/maildev
->>>>>>> upstream/master
     ports:
       - "8080:80"
     depends_on:
