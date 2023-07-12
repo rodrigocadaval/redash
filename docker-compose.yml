@@ -6,7 +6,7 @@
 # 2. Split the worker service to adhoc workers and scheduled queries workers.
 version: '2'
 x-redash-service: &redash-service
-  image: rodrigocadaval/redash:v10
+  image: rodrigocadaval/redash:v10.1
   depends_on:
     - redis
   env_file: .env
