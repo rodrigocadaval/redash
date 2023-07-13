@@ -18,7 +18,7 @@ services:
     ports:
       - "5000:5000"
     environment:
-      REDASH_WEB_WORKERS: 64
+      REDASH_WEB_WORKERS: 8
   scheduler:
     <<: *redash-service
     command: scheduler
@@ -27,31 +27,31 @@ services:
     command: worker
     environment:
       QUEUES: "scheduled_queries"
-      WORKERS_COUNT: 32
+      WORKERS_COUNT: 4
   adhoc_worker:
     <<: *redash-service
     command: worker
     environment:
       QUEUES: "queries"
-      WORKERS_COUNT: 186
+      WORKERS_COUNT: 32
   worker-emails:
     <<: *redash-service
     command: worker
     environment:
       QUEUES: "emails default"
-      WORKERS_COUNT: 8
+      WORKERS_COUNT: 2
   worker:
     <<: *redash-service
     command: worker
     environment:
       QUEUES: "periodic"
-      WORKERS_COUNT: 4
+      WORKERS_COUNT: 1
   worker_schemas:
     <<: *redash-service
     command: worker
     environment:
       QUEUES: "schemas"
-      WORKERS_COUNT: 32
+      WORKERS_COUNT: 8
   redis:
     image: redis:5.0-alpine
     restart: always
