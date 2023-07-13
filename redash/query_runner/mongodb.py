@@ -217,8 +217,7 @@ class MongoDB(BaseQueryRunner):
         # to have the same fields as another documet in the collection its a bit hard to
         # show these attributes as fields in the schema.
         #
-        # For now, the logic is to take the first and last documents (last is determined
-        # by the Natural Order (http://www.mongodb.org/display/DOCS/Sorting+and+Natural+Order)
+        # For now, the logic is to take the first documents
         # as we don't know the correct order. In most single server installations it would be
         # fine. In replicaset when reading from non master it might not return the really last
         # document written.
@@ -229,10 +228,10 @@ class MongoDB(BaseQueryRunner):
                 for d in db[collection_name].find().limit(2):
                     documents_sample.append(d)
             else:
-                for d in db[collection_name].find().sort([("$natural", 1)]).limit(1):
+                for d in db[collection_name].find().limit(1):
                     documents_sample.append(d)
 
-                for d in db[collection_name].find().sort([("$natural", -1)]).limit(1):
+                for d in db[collection_name].find().limit(1):
                     documents_sample.append(d)
         except Exception as ex:
             template = "An exception of type {0} occurred. Arguments:\n{1!r}"
